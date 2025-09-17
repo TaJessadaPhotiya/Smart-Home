@@ -27,7 +27,7 @@ def exit_program():
 
 # ฟังก์ชันเล่นไฟล์ wav/mp3 ด้วย pygame
 def play_sound(file_name):
-    sounds_dir = r"C:\Users\Nuntapon.p\Desktop\smathome\sounds"
+    sounds_dir = r"C:\Users\Nuntapon.p\Desktop\Smart-Home\sounds"
     file_path = os.path.join(sounds_dir, file_name)
     if not os.path.exists(file_path):
         print(f"❌ ไฟล์เสียงไม่พบ: {file_path}")
@@ -54,8 +54,8 @@ commands = {
     "ชื่ออะไร": lambda: (print("😜 สวัสดีครับ ผมคือ Smart Home Assistant"), play_sound("hi.wav")),
     "คุณชื่ออะไร": lambda: (print("😜 สวัสดีครับ ผมคือ Smart Home Assistant"), play_sound("hi.wav")),
     "โบว์ไปอาบน้ำ": lambda: (print("😜 โบว์ไปอาบน้ำ"), play_sound("bow_worter.wav")),
-    "โบว์อาบน้ำ": lambda: (print("😜 โบว์ไปอาบน้ำ"), play_sound("bow_worter.wav")),
-    "อาบน้ำโบว์": lambda: (print("😜 โบว์ไปอาบน้ำ"), play_sound("bow_worter.wav")),
+    "โบว์อาบน้ำ": lambda: (print("😜 โบว์อาบน้ำ"), play_sound("bow_worter.wav")),
+    "อาบน้ำโบว์": lambda: (print("😜 อาบน้ำโบว์"), play_sound("bow_worter.wav")),
     "หนาว": lambda: (print("😜 หนาว"), play_sound("cold_weather.wav")),
     "อากาศหนาว": lambda: (print("😜 หนาว"), play_sound("cold_weather.wav")),
     "อากาศเย็น": lambda: (print("😜 หนาว"), play_sound("cold_weather.wav")),
