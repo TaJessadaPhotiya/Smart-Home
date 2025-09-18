@@ -2,9 +2,9 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
-const char* server = "http://<PC_IP>:5000/device"; // แก้ IP เป็น PC
+const char* ssid = "Guest-wynnsoft";
+const char* password = "1@3456&*";
+const char* server = "http://qrcodebackend.tagifood.com/device"; 
 
 // กำหนดขารีเลย์
 const int relay1 = 25;

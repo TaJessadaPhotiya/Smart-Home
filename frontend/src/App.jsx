@@ -1,34 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 
-const API_URL = "http://localhost:5000/device";
+const API_URL = "http://qrcodebackend.tagifood.com/device";
+// const API_URL = "http://localhost:5000/device";
 const SOUND_PATH = "/sounds/";
+const socket = io("http://qrcodebackend.tagifood.com");
+// const socket = io("http://localhost:5000");
 
 function App() {
   const [listening, setListening] = useState(false);
   const [inputText, setInputText] = useState("");
-  const [recognizedText, setRecognizedText] = useState(""); // ✅ state ใหม่
-
+  const [recognizedText, setRecognizedText] = useState("");
   const [devices, setDevices] = useState({
     light1: false,
     tv: false,
     air: false,
   });
 
+  const recognitionRef = useRef(null); // ✅ เก็บ SpeechRecognition instance
+
+  // เล่นเสียงตอบรับ
   const playSound = (file) => {
     const audio = new Audio(SOUND_PATH + file);
     audio.play().catch((err) => console.log("❌ เล่นเสียงไม่ได้:", err));
   };
 
+  // ส่งคำสั่งไป backend
   const callApi = async (device, action) => {
     try {
       await axios.post(API_URL, { device, action });
-      console.log(`✅ ส่งคำสั่ง ${device} ${action} สำเร็จ`);
     } catch (err) {
       console.log("❌ API error:", err);
     }
   };
 
+  // Toggle device
   const toggleDevice = (device, onSound, offSound) => {
     const newState = !devices[device];
     setDevices((prev) => ({ ...prev, [device]: newState }));
@@ -42,6 +49,7 @@ function App() {
     }
   };
 
+  // จัดการคำสั่ง
   const handleCommand = (text) => {
     if (text.includes("เปิดไฟ"))
       toggleDevice("light1", "on_light.wav", "off_light.wav");
@@ -60,7 +68,8 @@ function App() {
     }
   };
 
-  const startListening = () => {
+  // เริ่มหรือหยุดฟังเสียง
+  const toggleListening = () => {
     if (
       !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
     ) {
@@ -68,6 +77,14 @@ function App() {
       return;
     }
 
+    // ถ้าอยู่ในโหมดกำลังฟัง → หยุด
+    if (listening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+      return;
+    }
+
+    // ถ้าไม่ได้ฟัง → สร้าง instance ใหม่
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -80,23 +97,32 @@ function App() {
     recognition.onerror = (e) => {
       console.log("❌ Speech error:", e.error);
       playSound("not_understand.wav");
-      if (e.error === "network") {
-        alert(
-          "❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ประมวลผลเสียงได้ ลองเชื่อมต่ออินเทอร์เน็ต"
-        );
-      }
       setListening(false);
     };
 
     recognition.onresult = (event) => {
       const speechText = event.results[0][0].transcript;
       console.log("🎤 ได้ยินว่า:", speechText);
-      setRecognizedText(speechText); // ✅ อัปเดต state
+      setRecognizedText(speechText);
       handleCommand(speechText);
     };
 
+    recognitionRef.current = recognition; // ✅ เก็บไว้หยุดภายหลัง
     recognition.start();
   };
+
+  // Realtime sync
+  useEffect(() => {
+    socket.on("updateDevices", (data) => {
+      setDevices({
+        light1: data.light1 === "on",
+        tv: data.tv === "on",
+        air: data.air === "on",
+      });
+    });
+
+    return () => socket.off("updateDevices");
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
@@ -122,7 +148,7 @@ function App() {
         </button>
       </div>
 
-      {/* แสดงข้อความที่ถอดเสียง */}
+      {/* ข้อความถอดเสียง */}
       {recognizedText && (
         <div className="w-full max-w-md p-3 mb-4 border rounded bg-white shadow">
           🎤 ข้อความที่ได้:{" "}
@@ -135,9 +161,9 @@ function App() {
         className={`w-full max-w-md px-4 py-2 rounded text-white mb-6 transition ${
           listening ? "bg-red-500" : "bg-green-500 hover:bg-green-600"
         }`}
-        onClick={startListening}
+        onClick={toggleListening}
       >
-        {listening ? "🎤 กำลังฟัง..." : "🎙️ กดเพื่อพูด"}
+        {listening ? "⏹️ หยุดฟัง" : "🎙️ กดเพื่อพูด"}
       </button>
 
       {/* Toggle Devices */}
