@@ -1,17 +1,29 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
+import axios from "axios";
+import WifiOutlinedIcon from "@mui/icons-material/WifiOutlined";
+import AirOutlinedIcon from "@mui/icons-material/AirOutlined";
+import WbIncandescentOutlinedIcon from "@mui/icons-material/WbIncandescentOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import LiveTvOutlinedIcon from "@mui/icons-material/LiveTvOutlined";
+import { Switch } from "@heroui/react";
 
-const API_URL = "http://qrcodebackend.tagifood.com/device";
-// const API_URL = "http://localhost:5000/device";
+// const API_URL = "http://qrcodebackend.tagifood.com/device";
+const API_URL = "http://localhost:5000/device";
 const SOUND_PATH = "/sounds/";
-const socket = io("http://qrcodebackend.tagifood.com");
-// const socket = io("http://localhost:5000");
+// const socket = io("http://qrcodebackend.tagifood.com");
+const socket = io("http://localhost:5000");
 
 function App() {
   const [listening, setListening] = useState(false);
   const [inputText, setInputText] = useState("");
   const [recognizedText, setRecognizedText] = useState("");
+  const [activeTab, setActiveTab] = useState("ห้องนอน");
+  const tabs = ["ห้องนอน", "ห้องน้ำ", "ห้องครัว"];
+  const [isSelected, setIsSelected] = useState(true);
+  const [isSelected2, setIsSelected2] = useState(true);
+  const [isSelected3, setIsSelected3] = useState(true);
+  const [placement, setPlacement] = useState("bottom-right");
   const [devices, setDevices] = useState({
     light1: false,
     tv: false,
@@ -107,7 +119,7 @@ function App() {
       handleCommand(speechText);
     };
 
-    recognitionRef.current = recognition; // ✅ เก็บไว้หยุดภายหลัง
+    recognitionRef.current = recognition;
     recognition.start();
   };
 
@@ -124,79 +136,417 @@ function App() {
     return () => socket.off("updateDevices");
   }, []);
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case "ห้องนอน":
+        return (
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <div
+              className={`flex flex-col justify-between w-full h-[160px] rounded-2xl p-4 text-white transition-colors ${
+                devices.light1
+                  ? "bg-gradient-to-r from-[#20d3d3] to-[#c7e4e4]"
+                  : "bg-[#2F313E]"
+              }`}
+              style={{
+                boxShadow: devices.light1 ? "0 0.5px 15px #20d3d3" : "none",
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <WbIncandescentOutlinedIcon
+                  sx={{
+                    fontSize: 35,
+                    color: devices.light1 ? "#F5A524" : "#F5A524",
+                  }}
+                />
+                <WifiOutlinedIcon
+                  sx={{
+                    fontSize: 25,
+                    color: devices.light1 ? "#00A63E" : "#d1d5dc",
+                  }}
+                />
+              </div>
+              <div>
+                <h1
+                  className={`text-md font-medium ${
+                    devices.light1 ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  ไฟห้องนอน
+                </h1>
+                <p
+                  className={`text-[12px] font-medium ${
+                    devices.light1 ? "text-gray-600" : "text-gray-500"
+                  }`}
+                >
+                  1 Devices
+                </p>
+              </div>
+              <div className="flex justify-between items-center text-sm ">
+                <h1
+                  className={`text-sm font-medium ${
+                    devices.light1 ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  {devices.light1 ? "ON" : "OFF"}
+                </h1>
+                <Switch
+                  onChange={() =>
+                    toggleDevice("light1", "on_light.wav", "off_light.wav")
+                  }
+                  defaultSelected
+                  size="sm"
+                  color="success"
+                  isSelected={devices.light1}
+                ></Switch>
+              </div>
+            </div>
+            <div
+              className={`flex flex-col justify-between w-full h-[160px] rounded-2xl p-4 text-white transition-colors ${
+                devices.tv
+                  ? "bg-gradient-to-r from-[#20d3d3] to-[#c7e4e4]"
+                  : "bg-[#2F313E]"
+              }`}
+              style={{
+                boxShadow: devices.tv ? "0 0.5px 15px #20d3d3" : "none",
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <LiveTvOutlinedIcon
+                  sx={{
+                    fontSize: 35,
+                    color: devices.tv ? "#F31260" : "#F31260",
+                  }}
+                />
+                <WifiOutlinedIcon
+                  sx={{
+                    fontSize: 25,
+                    color: devices.tv ? "#00A63E" : "#d1d5dc",
+                  }}
+                />
+              </div>
+              <div>
+                <h1
+                  className={`text-md font-medium ${
+                    devices.tv ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  ทีวี
+                </h1>
+                <p
+                  className={`text-[12px] font-medium ${
+                    devices.tv ? "text-gray-600" : "text-gray-500"
+                  }`}
+                >
+                  1 Devices
+                </p>
+              </div>
+              <div className="flex justify-between items-center text-sm ">
+                <h1
+                  className={`text-sm font-medium ${
+                    devices.tv ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  {devices.tv ? "ON" : "OFF"}
+                </h1>
+                <Switch
+                  onChange={() => toggleDevice("tv", "on_tv.wav", "off_tv.wav")}
+                  defaultSelected
+                  size="sm"
+                  color="success"
+                  isSelected={devices.tv}
+                ></Switch>
+              </div>
+            </div>
+            <div
+              className={`flex flex-col justify-between w-full h-[160px] rounded-2xl p-4 text-white transition-colors ${
+                devices.air
+                  ? "bg-gradient-to-r from-[#20d3d3] to-[#c7e4e4]"
+                  : "bg-[#2F313E]"
+              }`}
+              style={{
+                boxShadow: devices.air ? "0 0.5px 15px #20d3d3" : "none",
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <AirOutlinedIcon
+                  sx={{
+                    fontSize: 35,
+                    color: devices.air ? "#338EF7" : "#338EF7",
+                  }}
+                />
+                <WifiOutlinedIcon
+                  sx={{
+                    fontSize: 25,
+                    color: devices.air ? "#00A63E" : "#d1d5dc",
+                  }}
+                />
+              </div>
+              <div>
+                <h1
+                  className={`text-md font-medium ${
+                    devices.air ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  แอร์
+                </h1>
+                <p
+                  className={`text-[12px] font-medium ${
+                    devices.air ? "text-gray-600" : "text-gray-500"
+                  }`}
+                >
+                  1 Devices
+                </p>
+              </div>
+              <div className="flex justify-between items-center text-sm ">
+                <h1
+                  className={`text-sm font-medium ${
+                    devices.air ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  {devices.air ? "ON" : "OFF"}
+                </h1>
+                <Switch
+                  onChange={() =>
+                    toggleDevice("air", "on_air.wav", "off_air.wav")
+                  }
+                  defaultSelected
+                  size="sm"
+                  color="success"
+                  isSelected={devices.air}
+                ></Switch>
+              </div>
+            </div>
+          </div>
+        );
+      case "ห้องน้ำ":
+        return (
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <div
+              className={`flex flex-col justify-between w-full h-[160px] rounded-2xl p-4 text-white transition-colors ${
+                devices.light1
+                  ? "bg-gradient-to-r from-[#20d3d3] to-[#c7e4e4]"
+                  : "bg-[#2F313E]"
+              }`}
+              style={{
+                boxShadow: devices.light1 ? "0 0.5px 15px #20d3d3" : "none",
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <WbIncandescentOutlinedIcon
+                  sx={{
+                    fontSize: 35,
+                    color: devices.light1 ? "#F5A524" : "#F5A524",
+                  }}
+                />
+                <WifiOutlinedIcon
+                  sx={{
+                    fontSize: 25,
+                    color: devices.light1 ? "#00A63E" : "#d1d5dc",
+                  }}
+                />
+              </div>
+              <div>
+                <h1
+                  className={`text-md font-medium ${
+                    devices.light1 ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  ไฟห้องนอน2
+                </h1>
+                <p
+                  className={`text-[12px] font-medium ${
+                    devices.light1 ? "text-gray-600" : "text-gray-500"
+                  }`}
+                >
+                  1 Devices
+                </p>
+              </div>
+              <div className="flex justify-between items-center text-sm ">
+                <h1
+                  className={`text-sm font-medium ${
+                    devices.light1 ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  {devices.light1 ? "ON" : "OFF"}
+                </h1>
+                <Switch
+                  onChange={() =>
+                    toggleDevice("light1", "on_light.wav", "off_light.wav")
+                  }
+                  defaultSelected
+                  size="sm"
+                  color="success"
+                  isSelected={devices.light1}
+                ></Switch>
+              </div>
+            </div>
+          </div>
+        );
+      case "ห้องครัว":
+        return (
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <div
+              className={`flex flex-col justify-between w-full h-[160px] rounded-2xl p-4 text-white transition-colors ${
+                devices.light1
+                  ? "bg-gradient-to-r from-[#20d3d3] to-[#c7e4e4]"
+                  : "bg-[#2F313E]"
+              }`}
+              style={{
+                boxShadow: devices.light1 ? "0 0.5px 15px #20d3d3" : "none",
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <WbIncandescentOutlinedIcon
+                  sx={{
+                    fontSize: 35,
+                    color: devices.light1 ? "#F5A524" : "#F5A524",
+                  }}
+                />
+                <WifiOutlinedIcon
+                  sx={{
+                    fontSize: 25,
+                    color: devices.light1 ? "#00A63E" : "#d1d5dc",
+                  }}
+                />
+              </div>
+              <div>
+                <h1
+                  className={`text-md font-medium ${
+                    devices.light1 ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  ไฟห้องนอน3
+                </h1>
+                <p
+                  className={`text-[12px] font-medium ${
+                    devices.light1 ? "text-gray-600" : "text-gray-500"
+                  }`}
+                >
+                  1 Devices
+                </p>
+              </div>
+              <div className="flex justify-between items-center text-sm ">
+                <h1
+                  className={`text-sm font-medium ${
+                    devices.light1 ? "text-gray-700" : "text-gray-300"
+                  }`}
+                >
+                  {devices.light1 ? "ON" : "OFF"}
+                </h1>
+                <Switch
+                  onChange={() =>
+                    toggleDevice("light1", "on_light.wav", "off_light.wav")
+                  }
+                  defaultSelected
+                  size="sm"
+                  color="success"
+                  isSelected={devices.light1}
+                ></Switch>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6">Smart Home Control</h1>
+    <div className="min-h-screen w-full bg-gray-200 flex justify-center items-center ">
+      <div className="min-h-screen max-w-[500px] w-full bg-[#141321] overflow-hidden p-6">
+        <div className="relative w-full h-[160px] bg-black rounded-2xl overflow-hidden">
+          {/* <div className="relative w-full h-[160px] bg-gradient-to-r from-[#20d3d3] to-[#c7e4e4] rounded-2xl overflow-hidden"> */}
+          <img
+            className="w-full h-full object-cover"
+            src="/image/banner6.jpg"
+            alt=""
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-0"></div>
+          <div className="absolute top-5 left-5 flex flex-col items-start z-10 text-left">
+            {/* ข้อความหลัก */}
+            <h1 className="text-white text-lg font-semibold drop-shadow-lg">
+              สวัสดีตอนเช้า 🌤️
+            </h1>
 
-      {/* Input */}
-      <div className="flex gap-2 w-full max-w-md mb-4">
-        <input
-          type="text"
-          placeholder="พิมพ์คำสั่ง..."
-          className="flex-1 p-2 border rounded"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-        />
-        <button
-          className="bg-blue-500 text-white px-4 rounded hover:bg-blue-600"
-          onClick={() => {
-            handleCommand(inputText);
-            setInputText("");
-          }}
-        >
-          ส่ง
-        </button>
-      </div>
+            {/* อุณหภูมิ */}
+            <p className="text-white text-sm mt-1 drop-shadow-md">
+              อุณหภูมิ: 29°C
+            </p>
 
-      {/* ข้อความถอดเสียง */}
-      {recognizedText && (
-        <div className="w-full max-w-md p-3 mb-4 border rounded bg-white shadow">
-          🎤 ข้อความที่ได้:{" "}
-          <span className="font-semibold">{recognizedText}</span>
+            {/* วัน เดือน ปี */}
+            <p className="text-white text-xs mt-1 drop-shadow-md">
+              วันศุกร์ 19 กันยายน 2025
+            </p>
+
+            {/* สภาพอากาศ */}
+            <p className="text-white text-xs mt-1 drop-shadow-md">
+              สภาพอากาศ: มีแดดเล็กน้อย
+            </p>
+          </div>
         </div>
-      )}
 
-      {/* ปุ่มเสียง */}
-      <button
-        className={`w-full max-w-md px-4 py-2 rounded text-white mb-6 transition ${
-          listening ? "bg-red-500" : "bg-green-500 hover:bg-green-600"
-        }`}
-        onClick={toggleListening}
-      >
-        {listening ? "⏹️ หยุดฟัง" : "🎙️ กดเพื่อพูด"}
-      </button>
+        <div className="flex items-center justify-between w-full mt-6">
+          <h1 className="text-white text-2xl font-medium">Controller</h1>
+          {/* Input */}
+          <div className="relative flex items-center gap-2 w-[170px] h-[38px] max-w-sm">
+            <input
+              type="text"
+              placeholder="พิมพ์คำสั่ง..."
+              className="w-full h-[38px] p-3 border border-transparent rounded-full text-sm font-normal bg-[#2F313E] text-white pr-10 
+             focus:outline-none focus:border-[#3ACFCF] focus:ring-1 focus:ring-[#3ACFCF]"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+            />
+            <SearchOutlinedIcon
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-300 
+             hover:text-[#3ACFCF] hover:scale-110 z-10 
+             transition-all duration-300 ease-in-out"
+              onClick={() => {
+                handleCommand(inputText);
+                setInputText("");
+              }}
+              sx={{ fontSize: 27 }}
+            />
+          </div>
+        </div>
 
-      {/* Toggle Devices */}
-      <div className="grid grid-cols-1 gap-4 w-full max-w-md">
+        <div className="flex w-full items-center gap-3 py-6 overflow-x-auto">
+          {tabs.map((tab) => (
+            <div
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-shrink-0 text-sm rounded-full px-4 py-2 cursor-pointer transition ${
+                activeTab === tab
+                  ? "bg-gradient-to-r from-[#3ACFCF] to-[#c7e4e4] text-white"
+                  : "bg-[#2F313E] text-gray-300"
+              }`}
+            >
+              {tab}
+            </div>
+          ))}
+        </div>
+
+        {renderContent()}
+
+        {/* ข้อความถอดเสียง */}
+        {recognizedText && (
+          <div className="w-full max-w-md p-3 mb-4 border rounded bg-white shadow">
+            🎤 ข้อความที่ได้:{" "}
+            <span className="font-semibold">{recognizedText}</span>
+          </div>
+        )}
+
+        {/* ปุ่มเสียง */}
         <button
-          onClick={() =>
-            toggleDevice("light1", "on_light.wav", "off_light.wav")
-          }
-          className={`py-3 rounded-lg shadow-lg font-semibold transition ${
-            devices.light1
-              ? "bg-yellow-400 text-black"
-              : "bg-gray-700 text-white"
-          }`}
+          className={`mt-4 w-full max-w-md px-6 py-3 rounded-2xl font-semibold flex items-center justify-center gap-2 text-white mb-6 shadow-lg transition-all duration-300 transform 
+              ${
+                listening
+                  ? "bg-gradient-to-r from-[#20d3d3] to-[#14b8b8] hover:from-[#1ac0c0] hover:to-[#0fa0a0] scale-105"
+                  : "bg-gradient-to-r from-[#20d3d3] to-[#14b8b8] hover:from-[#1ac0c0] hover:to-[#0fa0a0] scale-105"
+              }`}
+          onClick={toggleListening}
         >
-          💡 ไฟ {devices.light1 ? "ON" : "OFF"}
-        </button>
-
-        <button
-          onClick={() => toggleDevice("tv", "on_tv.wav", "off_tv.wav")}
-          className={`py-3 rounded-lg shadow-lg font-semibold transition ${
-            devices.tv ? "bg-blue-400 text-white" : "bg-blue-800 text-white"
-          }`}
-        >
-          📺 ทีวี {devices.tv ? "ON" : "OFF"}
-        </button>
-
-        <button
-          onClick={() => toggleDevice("air", "on_air.wav", "off_air.wav")}
-          className={`py-3 rounded-lg shadow-lg font-semibold transition ${
-            devices.air ? "bg-cyan-400 text-black" : "bg-cyan-700 text-white"
-          }`}
-        >
-          ❄️ แอร์ {devices.air ? "ON" : "OFF"}
+          {listening ? "⏹️ หยุดฟัง" : "🎙️ กดเพื่อพูด"}
         </button>
       </div>
     </div>
