@@ -4,7 +4,7 @@
 
 const char* ssid = "Guest-wynnsoft";
 const char* password = "1@3456&*";
-const char* server = "http://qrcodebackend.tagifood.com/device"; 
+const char* server = "https://qrcodebackend.tagifood.com/device"; 
 
 // กำหนดขารีเลย์
 const int relay1 = 25;
