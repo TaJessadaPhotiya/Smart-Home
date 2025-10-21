@@ -3,6 +3,11 @@
 @source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 @custom-variant dark (&:is(.dark *));
 
+/* @theme {
+  --color-customcyan: #20d3d3;
+} */
+
 body {
   font-family: "Kanit", sans-serif;
 }
+

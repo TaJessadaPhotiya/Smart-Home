@@ -7,12 +7,21 @@ import WbIncandescentOutlinedIcon from "@mui/icons-material/WbIncandescentOutlin
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import LiveTvOutlinedIcon from "@mui/icons-material/LiveTvOutlined";
 import { Switch } from "@heroui/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@heroui/react";
 
-// const API_URL = "http://qrcodebackend.tagifood.com/device";
-const API_URL = "http://localhost:5000/device";
+const API_URL = "https://qrcodebackend.tagifood.com/device";
+// const API_URL = "http://localhost:5000/device";
 const SOUND_PATH = "/sounds/";
-// const socket = io("http://qrcodebackend.tagifood.com");
-const socket = io("http://localhost:5000");
+const socket = io("https://qrcodebackend.tagifood.com");
+// const socket = io("http://localhost:5000");
 
 function App() {
   const [listening, setListening] = useState(false);
@@ -20,15 +29,12 @@ function App() {
   const [recognizedText, setRecognizedText] = useState("");
   const [activeTab, setActiveTab] = useState("ห้องนอน");
   const tabs = ["ห้องนอน", "ห้องน้ำ", "ห้องครัว"];
-  const [isSelected, setIsSelected] = useState(true);
-  const [isSelected2, setIsSelected2] = useState(true);
-  const [isSelected3, setIsSelected3] = useState(true);
-  const [placement, setPlacement] = useState("bottom-right");
   const [devices, setDevices] = useState({
     light1: false,
     tv: false,
     air: false,
   });
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const recognitionRef = useRef(null); // ✅ เก็บ SpeechRecognition instance
 
@@ -548,6 +554,47 @@ function App() {
         >
           {listening ? "⏹️ หยุดฟัง" : "🎙️ กดเพื่อพูด"}
         </button>
+
+        <Button onPress={onOpen}>Open Modal</Button>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+          <ModalContent >
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Modal Title
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Nullam pulvinar risus non risus hendrerit venenatis.
+                    Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                  </p>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Nullam pulvinar risus non risus hendrerit venenatis.
+                    Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                  </p>
+                  <p>
+                    Magna exercitation reprehenderit magna aute tempor cupidatat
+                    consequat elit dolor adipisicing. Mollit dolor eiusmod sunt
+                    ex incididunt cillum quis. Velit duis sit officia eiusmod
+                    Lorem aliqua enim laboris do dolor eiusmod. Et mollit
+                    incididunt nisi consectetur esse laborum eiusmod pariatur
+                    proident Lorem eiusmod et. Culpa deserunt nostrud ad veniam.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                  <Button color="primary" onPress={onClose}>
+                    Action
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </div>
   );
